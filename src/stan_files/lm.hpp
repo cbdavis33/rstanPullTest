@@ -36,7 +36,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_lm");
-    reader.add_event(19, 17, "end", "model_lm");
+    reader.add_event(20, 18, "end", "model_lm");
     return reader;
 }
 
@@ -44,7 +44,8 @@ stan::io::program_reader prog_reader__() {
  class model_lm : public prob_grad {
 private:
     int N;
-    vector_d x;
+    int K;
+    matrix_d x;
     vector_d y;
 public:
     model_lm(stan::io::var_context& context__,
@@ -89,17 +90,28 @@ public:
             pos__ = 0;
             N = vals_i__[pos__++];
             current_statement_begin__ = 4;
+            context__.validate_dims("data initialization", "K", "int", context__.to_vec());
+            K = int(0);
+            vals_i__ = context__.vals_i("K");
+            pos__ = 0;
+            K = vals_i__[pos__++];
+            current_statement_begin__ = 5;
             validate_non_negative_index("x", "N", N);
-            context__.validate_dims("data initialization", "x", "vector_d", context__.to_vec(N));
+            validate_non_negative_index("x", "K", K);
+            context__.validate_dims("data initialization", "x", "matrix_d", context__.to_vec(N,K));
             validate_non_negative_index("x", "N", N);
-            x = vector_d(static_cast<Eigen::VectorXd::Index>(N));
+            validate_non_negative_index("x", "K", K);
+            x = matrix_d(static_cast<Eigen::VectorXd::Index>(N),static_cast<Eigen::VectorXd::Index>(K));
             vals_r__ = context__.vals_r("x");
             pos__ = 0;
-            size_t x_i_vec_lim__ = N;
-            for (size_t i_vec__ = 0; i_vec__ < x_i_vec_lim__; ++i_vec__) {
-                x[i_vec__] = vals_r__[pos__++];
+            size_t x_m_mat_lim__ = N;
+            size_t x_n_mat_lim__ = K;
+            for (size_t n_mat__ = 0; n_mat__ < x_n_mat_lim__; ++n_mat__) {
+                for (size_t m_mat__ = 0; m_mat__ < x_m_mat_lim__; ++m_mat__) {
+                    x(m_mat__,n_mat__) = vals_r__[pos__++];
+                }
             }
-            current_statement_begin__ = 5;
+            current_statement_begin__ = 6;
             validate_non_negative_index("y", "N", N);
             context__.validate_dims("data initialization", "y", "vector_d", context__.to_vec(N));
             validate_non_negative_index("y", "N", N);
@@ -115,7 +127,9 @@ public:
             current_statement_begin__ = 3;
             check_greater_or_equal(function__,"N",N,1);
             current_statement_begin__ = 4;
+            check_greater_or_equal(function__,"K",K,0);
             current_statement_begin__ = 5;
+            current_statement_begin__ = 6;
             // initialize data variables
 
 
@@ -124,11 +138,12 @@ public:
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 8;
-            ++num_params_r__;
             current_statement_begin__ = 9;
             ++num_params_r__;
             current_statement_begin__ = 10;
+            validate_non_negative_index("beta", "K", K);
+            num_params_r__ += K;
+            current_statement_begin__ = 11;
             ++num_params_r__;
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -150,28 +165,30 @@ public:
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
 
-        if (!(context__.contains_r("intercept")))
-            throw std::runtime_error("variable intercept missing");
-        vals_r__ = context__.vals_r("intercept");
+        if (!(context__.contains_r("alpha")))
+            throw std::runtime_error("variable alpha missing");
+        vals_r__ = context__.vals_r("alpha");
         pos__ = 0U;
-        context__.validate_dims("initialization", "intercept", "double", context__.to_vec());
-        double intercept(0);
-        intercept = vals_r__[pos__++];
+        context__.validate_dims("initialization", "alpha", "double", context__.to_vec());
+        double alpha(0);
+        alpha = vals_r__[pos__++];
         try {
-            writer__.scalar_unconstrain(intercept);
+            writer__.scalar_unconstrain(alpha);
         } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable intercept: ") + e.what());
+            throw std::runtime_error(std::string("Error transforming variable alpha: ") + e.what());
         }
 
         if (!(context__.contains_r("beta")))
             throw std::runtime_error("variable beta missing");
         vals_r__ = context__.vals_r("beta");
         pos__ = 0U;
-        context__.validate_dims("initialization", "beta", "double", context__.to_vec());
-        double beta(0);
-        beta = vals_r__[pos__++];
+        validate_non_negative_index("beta", "K", K);
+        context__.validate_dims("initialization", "beta", "vector_d", context__.to_vec(K));
+        vector_d beta(static_cast<Eigen::VectorXd::Index>(K));
+        for (int j1__ = 0U; j1__ < K; ++j1__)
+            beta(j1__) = vals_r__[pos__++];
         try {
-            writer__.scalar_unconstrain(beta);
+            writer__.vector_unconstrain(beta);
         } catch (const std::exception& e) { 
             throw std::runtime_error(std::string("Error transforming variable beta: ") + e.what());
         }
@@ -222,19 +239,19 @@ public:
             // model parameters
             stan::io::reader<local_scalar_t__> in__(params_r__,params_i__);
 
-            local_scalar_t__ intercept;
-            (void) intercept;  // dummy to suppress unused var warning
+            local_scalar_t__ alpha;
+            (void) alpha;  // dummy to suppress unused var warning
             if (jacobian__)
-                intercept = in__.scalar_constrain(lp__);
+                alpha = in__.scalar_constrain(lp__);
             else
-                intercept = in__.scalar_constrain();
+                alpha = in__.scalar_constrain();
 
-            local_scalar_t__ beta;
+            Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,1>  beta;
             (void) beta;  // dummy to suppress unused var warning
             if (jacobian__)
-                beta = in__.scalar_constrain(lp__);
+                beta = in__.vector_constrain(K,lp__);
             else
-                beta = in__.scalar_constrain();
+                beta = in__.vector_constrain(K);
 
             local_scalar_t__ sigma;
             (void) sigma;  // dummy to suppress unused var warning
@@ -255,8 +272,8 @@ public:
 
             // model body
 
-            current_statement_begin__ = 15;
-            lp_accum__.add(normal_log<propto__>(y, add(intercept,multiply(beta,x)), sigma));
+            current_statement_begin__ = 16;
+            lp_accum__.add(normal_log<propto__>(y, add(alpha,multiply(x,beta)), sigma));
 
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -283,7 +300,7 @@ public:
 
     void get_param_names(std::vector<std::string>& names__) const {
         names__.resize(0);
-        names__.push_back("intercept");
+        names__.push_back("alpha");
         names__.push_back("beta");
         names__.push_back("sigma");
     }
@@ -295,6 +312,7 @@ public:
         dims__.resize(0);
         dimss__.push_back(dims__);
         dims__.resize(0);
+        dims__.push_back(K);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dimss__.push_back(dims__);
@@ -315,11 +333,13 @@ public:
         static const char* function__ = "model_lm_namespace::write_array";
         (void) function__;  // dummy to suppress unused var warning
         // read-transform, write parameters
-        double intercept = in__.scalar_constrain();
-        double beta = in__.scalar_constrain();
+        double alpha = in__.scalar_constrain();
+        vector_d beta = in__.vector_constrain(K);
         double sigma = in__.scalar_lb_constrain(0);
-        vars__.push_back(intercept);
-        vars__.push_back(beta);
+        vars__.push_back(alpha);
+            for (int k_0__ = 0; k_0__ < K; ++k_0__) {
+            vars__.push_back(beta[k_0__]);
+            }
         vars__.push_back(sigma);
 
         // declare and define transformed parameters
@@ -382,11 +402,13 @@ public:
                                  bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
         param_name_stream__.str(std::string());
-        param_name_stream__ << "intercept";
+        param_name_stream__ << "alpha";
         param_names__.push_back(param_name_stream__.str());
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "beta";
-        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= K; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
         param_name_stream__.str(std::string());
         param_name_stream__ << "sigma";
         param_names__.push_back(param_name_stream__.str());
@@ -406,11 +428,13 @@ public:
                                    bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
         param_name_stream__.str(std::string());
-        param_name_stream__ << "intercept";
+        param_name_stream__ << "alpha";
         param_names__.push_back(param_name_stream__.str());
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "beta";
-        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= K; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
         param_name_stream__.str(std::string());
         param_name_stream__ << "sigma";
         param_names__.push_back(param_name_stream__.str());

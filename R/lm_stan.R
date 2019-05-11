@@ -3,13 +3,19 @@
 #' Bayesian linear regression with Stan
 #'
 #' @export
-#' @param x Numeric vector of input values.
-#' @param y Numberic vector of output values.
+#' @param x Numeric matrix of input values. This matrix should not contain
+#' a column of 1's.
+#' @param y Numeric vector of output values.
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains).
 #' @return An object of class `stanfit` returned by `rstan::sampling`
+#' @examples
+#' \dontrun{
+#' lmFit <- lm_stan(x = runif(30, 0, 10), y = 1 + 2*x + rnorm(30))
+#' }
 #'
 lm_stan <- function(x, y, ...) {
-  standata <- list(x = x, y = y, N = length(y))
+  if(is.vector(x)) x <- matrix(x)
+  standata <- list(x = x, y = y, K = ncol(x), N = length(y))
   out <- rstan::sampling(stanmodels$lm, data = standata, ...)
   return(out)
 }

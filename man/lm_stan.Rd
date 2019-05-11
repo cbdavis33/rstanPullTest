@@ -7,9 +7,10 @@
 lm_stan(x, y, ...)
 }
 \arguments{
-\item{x}{Numeric vector of input values.}
+\item{x}{Numeric matrix of input values. This matrix should not contain
+a column of 1's.}
 
-\item{y}{Numberic vector of output values.}
+\item{y}{Numeric vector of output values.}
 
 \item{...}{Arguments passed to `rstan::sampling` (e.g. iter, chains).}
 }
@@ -18,4 +19,10 @@ An object of class `stanfit` returned by `rstan::sampling`
 }
 \description{
 Bayesian linear regression with Stan
+}
+\examples{
+\dontrun{
+lmFit <- lm_stan(x = runif(30, 0, 10), y = 1 + 2*x + rnorm(30))
+}
+
 }
