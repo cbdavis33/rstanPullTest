@@ -29,6 +29,10 @@ Bayesian robust linear regression with Stan
 }
 \examples{
 \dontrun{
-rlmFit <- rlm_stan(x = runif(30, 0, 10), y = 1 + 2*x + rt(30, 4))
+x <- runif(30, 0, 10)
+y <- 1 + 2*x + rt(30, 4)
+rlmFitFixed <- rlm_stan(x, y, "fixed")
+rlmFitCont <- rlm_stan(x, y, "continuous")
+rlmFitDisc <- rlm_stan(x, y, "discrete")
 }
 }

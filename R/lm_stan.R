@@ -10,7 +10,9 @@
 #' @return An object of class `stanfit` returned by `rstan::sampling`
 #' @examples
 #' \dontrun{
-#' lmFit <- lm_stan(x = runif(30, 0, 10), y = 1 + 2*x + rnorm(30))
+#' x <- runif(30, 0, 10)
+#' y <- 1 + 2*x + rnorm(30)
+#' lmFit <- lm_stan(x, y)
 #' }
 #'
 lm_stan <- function(x, y, ...) {
