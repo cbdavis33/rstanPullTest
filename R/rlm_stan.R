@@ -32,10 +32,22 @@ rlm_stan <- function(x, y, nu = c("fixed", "continuous", "discrete"), ...) {
                         discrete = 1)
   if(nu == "fixed") {
     out <- rstan::sampling(stanmodels$rlmNuFixed, data = standata, ...)
+    toReturn <- new("rlmfit",
+                    family = "Student's-t",
+                    nuDist = "fixed",
+                    samples = out@sim$samples)
   }else if(nu == "continuous"){
     out <- rstan::sampling(stanmodels$rlmNuEstCont, data = standata, ...)
+    toReturn <- new("rlmfit",
+                    family = "Student's-t",
+                    nuDist = "continuous",
+                    samples = out@sim$samples)
   }else{
     out <- rstan::sampling(stanmodels$rlmNuEstDisc, data = standata, ...)
+    toReturn <- new("rlmfit",
+                    family = "Student's-t",
+                    nuDist = "discrete",
+                    samples = out@sim$samples)
   }
-  return(out)
+  return(toReturn)
 }

@@ -1,5 +1,5 @@
 Package: rstanPullTest
-Title: What the Package Does (One Line, Title Case)
+Title: Bayesian Linear and Robust Regression
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Casey",

@@ -19,5 +19,8 @@ lm_stan <- function(x, y, ...) {
   if(is.vector(x)) x <- matrix(x)
   standata <- list(x = x, y = y, K = ncol(x), N = length(y))
   out <- rstan::sampling(stanmodels$lm, data = standata, ...)
-  return(out)
+  toReturn <- new("lmfit",
+                  error = "normal",
+                  samples = out@sim$samples)
+  return(toReturn)
 }
