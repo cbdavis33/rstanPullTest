@@ -4,7 +4,8 @@
 \alias{rlm_stan}
 \title{Bayesian robust linear regression with Stan}
 \usage{
-rlm_stan(x, y, nu = c("fixed", "continuous", "discrete"), ...)
+rlm_stan(x, y, family = "Student's t", nuDist = c("fixed", "gamma",
+  "uniform", "poisson"), ..., fixedNu, shape, rate, scale, nuMax, lambda)
 }
 \arguments{
 \item{x}{Numeric matrix of input values. This matrix should not contain
@@ -12,12 +13,12 @@ a column of 1's.}
 
 \item{y}{Numeric vector of output values.}
 
-\item{nu}{Character, either "fixed" for a fixed value of nu (I'm going to make it 4,
-since this is a fake package), "continuous", in which case the prior distribution
-for nu is gamma(shape = 2, rate = 0.5), for an expected value of 4, or "discrete", in
-which case the prior distribution for nu is a discrete uniform(1, 10). In a real package,
-I'd give more input options (fixed parameter value, shape, rate, upper bound, ...),
-but I don't care here}
+\item{family}{Character. Right now, only "Student's t is supported.}
+
+\item{nuDist}{Character, either "fixed" for a fixed value of nu, "continuous", in which case
+the prior distribution for nu is a gamma distribution, "uniform", in which case the prior
+distribution for nu is a discrete uniform, or "poisson", in which case the prior distribution
+for nu is a Poisson distribution truncated at 1 (no 0 values for nu).}
 
 \item{...}{Arguments passed to `rstan::sampling` (e.g. iter, chains).}
 }
@@ -31,8 +32,9 @@ Bayesian robust linear regression with Stan
 \dontrun{
 x <- runif(30, 0, 10)
 y <- 1 + 2*x + rt(30, 4)
-rlmFitFixed <- rlm_stan(x, y, "fixed")
-rlmFitCont <- rlm_stan(x, y, "continuous")
-rlmFitDisc <- rlm_stan(x, y, "discrete")
+rlmFitFixed <- rlm_stan(x, y, family = "Student's t", nuDist = "fixed", fixedNu = 4)
+rlmFitCont <- rlm_stan(x, y, family = "Student's t", nuDist = "gamma", shape = 2, rate = .5)
+rlmFitDisc <- rlm_stan(x, y, family = "Student's t", nuDist = "uniform", nuMax = 30)
+rlmFitDiscP <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson", lambda = 4)
 }
 }

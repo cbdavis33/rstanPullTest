@@ -1,15 +1,15 @@
 data {
 
-  int<lower=0> N;     // number of data items
-  int<lower=0> K;     // number of predictors
-  matrix[N, K] x;     // predictor matrix
-  vector[N] y;        // outcome vector
+  int<lower=0> N;             // number of data items
+  int<lower=0> K;             // number of predictors
+  matrix[N, K] x;             // predictor matrix
+  vector[N] y;                // outcome vector
+  int<lower = 1> nuMax;       // maximum value of nu ~ Discrete Unif(1, nuMax)
 
 }
 transformed data{
 
-  int<lower = 1> maxNu = 10;    // maximum value of nu, degrees of freedom
-  real log_unif = -log(maxNu);
+  real log_unif = -log(nuMax);
 
 }
 parameters {
@@ -21,9 +21,9 @@ parameters {
 }
 transformed parameters{
 
-  vector[maxNu] lp =rep_vector(log_unif, maxNu);
+  vector[nuMax] lp = rep_vector(log_unif, nuMax);
 
-  for(s in 1:maxNu){
+  for(s in 1:nuMax){
     lp[s] = lp[s] + student_t_lpdf(y|s, x*beta + alpha, sigma);
   }
 
@@ -40,7 +40,7 @@ model {
 }
 generated quantities {
 
-  int<lower=1,upper=maxNu> nu;
+  int<lower=1,upper=nuMax> nu;
   nu = categorical_rng(softmax(lp));
 
 }
