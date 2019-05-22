@@ -12,6 +12,12 @@
 #' distribution for nu is a discrete uniform, or "poisson", in which case the prior distribution
 #' for nu is a Poisson distribution truncated at 1 (no 0 values for nu).
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains).
+#' @param fixedNu
+#' @param shape
+#' @param rate
+#' @param scale
+#' @param nuMax
+#' @param lambda
 #' @return An object of class `stanfit` returned by `rstan::sampling`
 #' @examples
 #' \dontrun{
@@ -54,6 +60,7 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                     samples = out@sim$samples)
   }else if(nuDist == "gamma"){
     if(!missing(shape)){
+      stopifnot(length(shape) == 1, is.numeric(shape), (shape > 0))
       standata$shape <- shape
     }else{
       stop("You have chosen the gamma distribution for the error degrees of freedom.\n",
@@ -61,8 +68,14 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
     }
 
     if(!missing(rate) && !missing(scale)) stop("Please specify 'rate' or 'scale' but not both.")
-    else if(!missing(rate) && missing(scale)) standata$rate <- rate
-    else if(missing(rate) && !missing(scale)) standata$rate <- 1/scale
+    else if(!missing(rate) && missing(scale)){
+      stopifnot(length(rate) == 1, is.numeric(rate), (rate > 0))
+      standata$rate <- rate
+    }
+    else if(missing(rate) && !missing(scale)){
+      stopifnot(length(scale) == 1, is.numeric(scale), (scale > 0))
+      standata$rate <- 1/scale
+    }
     else stop("Please specify 'rate' or 'scale' but not both.")
 
     out <- rstan::sampling(stanmodels$rlmNuEstCont, data = standata, ...)
@@ -76,6 +89,7 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                     samples = out@sim$samples)
   }else if(nuDist == "uniform"){
     if(!missing(nuMax)){
+      stopifnot(length(nuMax) == 1, is.integer(nuMax), (nuMax > 1))
       standata$nuMax <- nuMax
     }else{
       stop("You have chosen the discrete uniform distribution for the error degrees of freedom.\n",
@@ -92,6 +106,7 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                     samples = out@sim$samples)
   }else{
     if(!missing(lambda)){
+      stopifnot(length(lambda) == 1, is.numeric(lambda), (lambda > 0))
       standata$lambda <- lambda
     }else{
       stop("You have chosen the Poisson distribution (truncated below at 1) for the error degrees of freedom.\n",

@@ -20,7 +20,8 @@ lm_stan <- function(x, y, ...) {
   standata <- list(x = x, y = y, K = ncol(x), N = length(y))
   out <- rstan::sampling(stanmodels$lm, data = standata, ...)
   toReturn <- new("lmfit",
-                  error = "normal",
+                  data = list(x = x, y = y),
+                  family = "normal",
                   samples = out@sim$samples)
   return(toReturn)
 }

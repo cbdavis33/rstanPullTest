@@ -25,6 +25,29 @@ rlmFitDiscP <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson", lambda
 print(rlmFitDiscP)
 
 
-rlmFitFixed <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson", lambda = 4,
-                        iter = 1500, chains = 4, cores = 4)
-print(rlmFitFixed)
+
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "gamma", shape = -22,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "gamma", shape = 2,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "gamma", nuMax = 10.5,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "uniform", nuMax = c(4, 6),
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "uniform", nuMax = 1,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "uniform", nuMax = 10.5,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "uniform", nuMax = NA,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "uniform", lambda = 4,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson",
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson", lambda = c(1, 2),
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson", lambda = NA,
+                      iter = 1500, chains = 4, cores = 4)
+rlmBreaks <- rlm_stan(x, y, family = "Student's t", nuDist = "poisson", lambda = -1,
+                      iter = 1500, chains = 4, cores = 4)
+
