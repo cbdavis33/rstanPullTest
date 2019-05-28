@@ -9,7 +9,7 @@
 #' @import methods
 #' @import Rcpp
 #' @import rstantools
-#' @importFrom rstan sampling
+#' @importFrom rstan sampling summary
 #'
 #' @references
 #' Stan Development Team (2018). RStan: the R interface to Stan. R package version 2.18.2. http://mc-stan.org

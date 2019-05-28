@@ -55,9 +55,16 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                    fixedNu = fixedNu)
     toReturn <- new("rlmfit",
                     data = data,
-                    family = "Student's-t",
+                    model_name = "Student's-t",
                     nuInfo = nuInfo,
-                    samples = out@sim$samples)
+                    model_pars = out@model_pars,
+                    par_dims = out@par_dims,
+                    mode = 0L,
+                    sim = out@sim,
+                    inits = out@inits,
+                    stan_args = out@stan_args,
+                    date = out@date,
+                    .MISC = out@.MISC)
   }else if(nuDist == "gamma"){
     if(!missing(shape)){
       stopifnot(length(shape) == 1, is.numeric(shape), (shape > 0))
@@ -84,9 +91,16 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                    rate = standata$rate)
     toReturn <- new("rlmfit",
                     data = data,
-                    family = "Student's-t",
+                    model_name = "Student's-t",
                     nuInfo = nuInfo,
-                    samples = out@sim$samples)
+                    model_pars = out@model_pars,
+                    par_dims = out@par_dims,
+                    mode = 0L,
+                    sim = out@sim,
+                    inits = out@inits,
+                    stan_args = out@stan_args,
+                    date = out@date,
+                    .MISC = out@.MISC)
   }else if(nuDist == "uniform"){
     if(!missing(nuMax)){
       stopifnot(length(nuMax) == 1, is.integer(nuMax), (nuMax > 1))
@@ -101,9 +115,16 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                    nuMax = standata$nuMax)
     toReturn <- new("rlmfit",
                     data = data,
-                    family = "Student's-t",
+                    model_name = "Student's-t",
                     nuInfo = nuInfo,
-                    samples = out@sim$samples)
+                    model_pars = out@model_pars,
+                    par_dims = out@par_dims,
+                    mode = 0L,
+                    sim = out@sim,
+                    inits = out@inits,
+                    stan_args = out@stan_args,
+                    date = out@date,
+                    .MISC = out@.MISC)
   }else{
     if(!missing(lambda)){
       stopifnot(length(lambda) == 1, is.numeric(lambda), (lambda > 0))
@@ -118,9 +139,16 @@ rlm_stan <- function(x, y, family = "Student's t", nuDist = c("fixed", "gamma", 
                    lambda = standata$lambda)
     toReturn <- new("rlmfit",
                     data = data,
-                    family = "Student's-t",
+                    model_name = "Student's-t",
                     nuInfo = nuInfo,
-                    samples = out@sim$samples)
+                    model_pars = out@model_pars,
+                    par_dims = out@par_dims,
+                    mode = 0L,
+                    sim = out@sim,
+                    inits = out@inits,
+                    stan_args = out@stan_args,
+                    date = out@date,
+                    .MISC = out@.MISC)
   }
   return(toReturn)
 }

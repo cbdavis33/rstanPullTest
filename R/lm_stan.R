@@ -21,7 +21,14 @@ lm_stan <- function(x, y, ...) {
   out <- rstan::sampling(stanmodels$lm, data = standata, ...)
   toReturn <- new("lmfit",
                   data = list(x = x, y = y),
-                  family = "normal",
-                  samples = out@sim$samples)
+                  model_name = "normal",
+                  model_pars = out@model_pars,
+                  par_dims = out@par_dims,
+                  mode = 0L,
+                  sim = out@sim,
+                  inits = out@inits,
+                  stan_args = out@stan_args,
+                  date = out@date,
+                  .MISC = out@.MISC)
   return(toReturn)
 }
